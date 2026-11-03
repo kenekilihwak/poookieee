@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Yassmine! 🎉</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#B76E79',
+                        blush: '#FFD1DC',
+                        softPink: '#FFF0F5',
+                        gold: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                        accentPink: '#FF6B8B',
+                        deepRose: '#C71585'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive'],
+                        script: ['Great Vibes', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Keyframe Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(3deg); }
+        }
+        @keyframes flameFlicker {
+            0%, 100% { transform: scale(1) rotate(-1deg); opacity: 0.95; }
+            25% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+            50% { transform: scale(0.95) rotate(-2deg); opacity: 0.9; }
+            75% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+        }
+        @keyframes smokeRise {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+            100% { transform: translateY(-35px) scale(2); opacity: 0; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-flame { animation: flameFlicker 0.6s ease-in-out infinite; transform-origin: bottom center; }
+        .smoke-particle { animation: smokeRise 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+        
+        .gold-shimmer {
+            background: linear-gradient(90deg, #D4AF37 0%, #FFF0F5 25%, #D4AF37 50%, #B76E79 75%, #D4AF37 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #FFF0F5; }
+        ::-webkit-scrollbar-thumb { background: #FFB6C1; border-radius: 10px; }
+
+        .balloon {
+            position: absolute;
+            bottom: -120px;
+            opacity: 0.85;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            z-index: 1;
+        }
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 16px;
+            background: rgba(150, 150, 150, 0.5);
+        }
+        .balloon:hover { transform: scale(1.15); }
+
+        /* Cake Drip Effect */
+        .drip-container {
+            width: 100%;
+            height: 16px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-around;
+        }
+        .drip {
+            width: 12px;
+            height: 18px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-softPink via-blush/40 to-pink-100 text-gray-800 min-h-screen relative overflow-x-hidden font-sans">
+
+    <!-- Floating Background Balloons Container -->
+    <div id="balloon-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-50 glass-card px-4 py-3 shadow-sm border-b border-pink-200/50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid font-bold text-accentPink text-2xl fa-cake-candles animate-bounce"></i>
+                <span class="font-cursive text-2xl font-bold text-deepRose tracking-wide">Yassmine's Cake Studio</span>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button id="music-btn" onclick="toggleAudio()" class="flex items-center gap-2 bg-white/80 hover:bg-white text-accentPink border border-pink-200 px-3 py-1.5 rounded-full text-sm font-medium transition shadow-sm hover:shadow">
+                    <i id="music-icon" class="fa-solid fa-music text-lg"></i>
+                    <span id="music-text" class="hidden sm:inline">Birthday Song 🎵</span>
+                </button>
+                <button onclick="triggerConfetti()" class="bg-gradient-to-r from-accentPink to-deepRose text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow hover:opacity-90 transition transform active:scale-95">
+                    ✨ Sparkles!
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Audio Element for Happy Birthday Song -->
+    <audio id="main-playlist-audio" loop src="https://cdn.pixabay.com/download/audio/2022/01/26/audio_d0c6ff2811.mp3?filename=happy-pop-10486.mp3" preload="auto"></audio>
+
+    <main class="relative z-10 max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- HERO SECTION -->
+        <section class="text-center space-y-4 pt-2">
+            <div class="inline-block relative">
+                <span class="text-xs sm:text-sm uppercase tracking-widest text-deepRose font-semibold bg-white/80 px-4 py-1 rounded-full shadow-sm border border-pink-200">
+                    👑 Happy Birthday Yassmine! 👑
+                </span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight">
+                Happy Birthday <br class="sm:hidden">
+                <span class="gold-shimmer font-script py-1 px-2">Yassmine</span>! 🎂
+            </h1>
+            <p class="text-base sm:text-xl text-gray-700 font-cursive max-w-2xl mx-auto leading-relaxed">
+                "Design your dream birthday cake, light the candles, make a wish, and blow them out!"
+            </p>
+        </section>
+
+        <!-- CAKE BUILDER STUDIO SECTION -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT / TOP: LIVE CAKE DISPLAY -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-10 text-center shadow-xl border border-white/80 relative flex flex-col items-center justify-between min-h-[500px]">
+                <div class="absolute top-4 left-4 text-xs font-bold text-accentPink bg-pink-100 px-3 py-1 rounded-full border border-pink-200">
+                    🎂 Live Cake Preview
+                </div>
+
+                <!-- Custom Piped Icing Banner Above Cake -->
+                <div class="w-full mt-6 mb-4">
+                    <div id="cake-banner" class="inline-block px-6 py-2 rounded-full bg-pink-100 border-2 border-pink-300 shadow-sm text-deepRose font-cursive text-xl sm:text-2xl font-bold tracking-wide">
+                        Happy Birthday Yassmine
+                    </div>
+                </div>
+
+                <!-- Cake Visualization Wrapper -->
+                <div class="relative py-6 my-auto w-full flex justify-center items-center">
+                    <div class="relative flex flex-col items-center">
+                        
+                        <!-- CANDLES TOP LAYER -->
+                        <div id="candles-layer" class="flex justify-center items-end space-x-4 sm:space-x-6 mb-[-4px] z-30 transition-all duration-300">
+                            <!-- Dynamic Candles Rendered via JS -->
+                        </div>
+
+                        <!-- TOPPERS / DECORATIONS LAYER -->
+                        <div id="toppers-layer" class="flex justify-center items-center gap-3 mb-[-10px] z-20 text-2xl sm:text-3xl transition-all duration-300">
+                            <!-- Dynamic Toppings Rendered via JS -->
+                        </div>
+
+                        <!-- TIER 3 (TOP TIER) -->
+                        <div id="tier-3" class="hidden w-32 sm:w-40 h-14 relative rounded-t-2xl shadow-md border-b-2 border-black/10 transition-all duration-300 flex justify-center items-center overflow-visible z-15">
+                            <div id="drip-3" class="hidden drip-container"></div>
+                            <div id="border-3" class="hidden absolute bottom-0 inset-x-0 h-2 bg-white/80 rounded-b-md"></div>
+                        </div>
+
+                        <!-- TIER 2 (MIDDLE TIER) -->
+                        <div id="tier-2" class="hidden w-48 sm:w-56 h-16 relative rounded-t-2xl shadow-md border-b-2 border-black/10 transition-all duration-300 flex justify-center items-center overflow-visible z-10">
+                            <div id="drip-2" class="hidden drip-container"></div>
+                            <div id="border-2" class="hidden absolute bottom-0 inset-x-0 h-2.5 bg-white/80 rounded-b-md"></div>
+                        </div>
+
+                        <!-- TIER 1 (BASE TIER) -->
+                        <div id="tier-1" class="w-64 sm:w-76 h-20 relative rounded-t-2xl shadow-lg border-b-2 border-black/10 transition-all duration-300 flex justify-center items-center overflow-visible z-5">
+                            <div id="drip-1" class="hidden drip-container"></div>
+                            <div id="border-1" class="hidden absolute bottom-0 inset-x-0 h-3 bg-white/80 rounded-b-md"></div>
+                        </div>
+
+                        <!-- CAKE STAND PLATE -->
+                        <div class="w-72 sm:w-96 h-5 bg-gradient-to-r from-gray-200 via-white to-gray-300 rounded-full shadow-2xl border-t border-gray-300 z-0"></div>
+
+                    </div>
+                </div>
+
+                <!-- Candle Blowing Controls & Message -->
+                <div class="mt-6 w-full flex flex-col items-center space-y-3 z-20">
+                    <button id="blow-btn" onclick="blowOutAllCandles()" class="bg-gradient-to-r from-gold via-yellow-500 to-gold text-white font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition transform flex items-center gap-2">
+                        <i class="fa-solid fa-wind"></i> Make a Wish & Blow Candles! 🌬️
+                    </button>
+                    <div id="wish-result" class="hidden transition-all duration-500 p-3 bg-pink-50 border border-pink-200 rounded-2xl max-w-md text-deepRose font-semibold shadow-inner text-sm">
+                        🎉 Happy Birthday Yassmine! May all your wishes come true! ✨
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT / BOTTOM: CAKE BUILDER CONTROLS -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 shadow-xl border border-pink-200 space-y-5">
+                <div class="border-b border-pink-200 pb-3">
+                    <h2 class="text-2xl font-bold font-cursive text-deepRose flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-accentPink"></i> Design Yassmine's Cake
+                    </h2>
+                    <p class="text-xs text-gray-600">Customize flavors, colors, toppings & custom text!</p>
+                </div>
+
+                <!-- CONTROL TABS -->
+                <div class="space-y-4 text-left">
+                    
+                    <!-- 1. Tiers Selection -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">1. Select Tiers</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setTiers(1)" id="btn-tier-1" class="tier-btn py-2 text-xs font-semibold rounded-xl border border-pink-300 bg-accentPink text-white shadow">1 Tier</button>
+                            <button onclick="setTiers(2)" id="btn-tier-2" class="tier-btn py-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50 text-gray-700">2 Tiers</button>
+                            <button onclick="setTiers(3)" id="btn-tier-3" class="tier-btn py-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50 text-gray-700">3 Tiers</button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Frosting Flavor & Color -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">2. Frosting Flavor</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="setFlavor('bg-pink-200', 'Strawberry')" class="p-2 rounded-xl border border-pink-200 bg-pink-200 hover:scale-105 transition text-xs font-medium text-pink-900 shadow-sm">🍓 Strawberry</button>
+                            <button onclick="setFlavor('bg-amber-100', 'Vanilla')" class="p-2 rounded-xl border border-amber-200 bg-amber-100 hover:scale-105 transition text-xs font-medium text-amber-900 shadow-sm">🍦 Vanilla</button>
+                            <button onclick="setFlavor('bg-amber-800 text-white', 'Chocolate')" class="p-2 rounded-xl border border-amber-900 bg-amber-800 text-white hover:scale-105 transition text-xs font-medium shadow-sm">🍫 Chocolate</button>
+                            <button onclick="setFlavor('bg-emerald-200', 'Matcha')" class="p-2 rounded-xl border border-emerald-300 bg-emerald-200 hover:scale-105 transition text-xs font-medium text-emerald-900 shadow-sm">🍵 Matcha</button>
+                            <button onclick="setFlavor('bg-sky-200', 'Pastel Blue')" class="p-2 rounded-xl border border-sky-300 bg-sky-200 hover:scale-105 transition text-xs font-medium text-sky-900 shadow-sm">🩵 Pastel Blue</button>
+                            <button onclick="setFlavor('bg-yellow-200', 'Lemon Gold')" class="p-2 rounded-xl border border-yellow-300 bg-yellow-200 hover:scale-105 transition text-xs font-medium text-yellow-900 shadow-sm">🍋 Lemon</button>
+                            <button onclick="setFlavor('bg-rose-300 text-white', 'Rose Velvet')" class="p-2 rounded-xl border border-rose-400 bg-rose-300 text-white hover:scale-105 transition text-xs font-medium shadow-sm">🌹 Rose</button>
+                            <button onclick="setFlavor('bg-purple-200', 'Ube Berry')" class="p-2 rounded-xl border border-purple-300 bg-purple-200 hover:scale-105 transition text-xs font-medium text-purple-900 shadow-sm">🫐 Lavender</button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Borders & Chocolate Drip -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">3. Frosting Details</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="toggleDrips()" id="btn-drip" class="py-2 px-3 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50 text-gray-700 flex items-center justify-center gap-1">
+                                💧 Toggle Drips
+                            </button>
+                            <button onclick="toggleBorders()" id="btn-border" class="py-2 px-3 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50 text-gray-700 flex items-center justify-center gap-1">
+                                🍨 Whipped Borders
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Toppings & Candles -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">4. Topping Style</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setTopping('berries')" class="p-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50">🍓 Berries</button>
+                            <button onclick="setTopping('macarons')" class="p-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50">🧁 Macarons</button>
+                            <button onclick="setTopping('blooms')" class="p-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50">🌸 Blooms</button>
+                        </div>
+                    </div>
+
+                    <!-- 5. Candles count -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">5. Number of Candles</label>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setCandles(1)" class="candle-count-btn flex-1 py-1.5 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50">1 Candle</button>
+                            <button onclick="setCandles(3)" class="candle-count-btn flex-1 py-1.5 text-xs font-semibold rounded-xl border border-pink-300 bg-accentPink text-white">3 Candles</button>
+                            <button onclick="setCandles(5)" class="candle-count-btn flex-1 py-1.5 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50">5 Candles</button>
+                        </div>
+                    </div>
+
+                    <!-- 6. Custom Icing Banner Text -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">6. Banner Icing Text</label>
+                        <input type="text" id="input-banner" value="Happy Birthday Yassmine" oninput="updateBannerText(this.value)" class="w-full px-3 py-2 text-xs rounded-xl border border-pink-300 focus:outline-none focus:ring-2 focus:ring-accentPink font-medium">
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 30 BEFORE 30 BESTIE BUCKET LIST SECTION -->
+        <section class="glass-card rounded-3xl p-6 sm:p-10 shadow-xl border border-pink-200/80 space-y-6">
+            <div class="text-center space-y-2">
+                <span class="inline-block px-4 py-1 text-xs font-bold tracking-widest text-deepRose uppercase bg-pink-100 rounded-full border border-pink-200">
+                    👯‍♀️ Best Friend Goals 👯‍♀️
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold font-script text-deepRose">
+                    30 Things to Do Before 30! ✨
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-600 max-w-lg mx-auto">
+                    The ultimate bestie bucket list for us to check off together as we continue conquering the world side-by-side!
+                </p>
+            </div>
+
+            <!-- Progress Bar Card -->
+            <div class="bg-white/90 p-4 sm:p-5 rounded-2xl border border-pink-200 shadow-sm space-y-2 max-w-2xl mx-auto">
+                <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-gold"></i> Bucket List Progress
+                    </span>
+                    <span id="bucket-progress-text" class="text-accentPink font-extrabold">0 of 30 Done (0%)</span>
+                </div>
+                <div class="w-full h-3 bg-pink-100 rounded-full overflow-hidden p-0.5 border border-pink-200">
+                    <div id="bucket-progress-bar" class="h-full bg-gradient-to-r from-accentPink to-gold rounded-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Add Custom Goal Input -->
+            <div class="max-w-xl mx-auto flex gap-2">
+                <input type="text" id="custom-bucket-input" placeholder="Add a new custom bestie goal..." class="flex-1 px-4 py-2 text-xs sm:text-sm rounded-full border border-pink-300 focus:outline-none focus:ring-2 focus:ring-accentPink bg-white/90 shadow-sm">
+                <button onclick="addCustomBucketItem()" class="bg-accentPink hover:bg-deepRose text-white font-semibold text-xs sm:text-sm px-5 py-2 rounded-full shadow transition flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add Goal
+                </button>
+            </div>
+
+            <!-- Bucket List Items Grid -->
+            <div id="bucket-list-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left pt-2">
+                <!-- Dynamically generated via JavaScript -->
+            </div>
+        </section>
+
+        <!-- SPECIAL 3+ YEARS FRIENDSHIP TRIBUTE SECTION (REPLACED WISHES WALL) -->
+        <section class="glass-card rounded-3xl p-6 sm:p-10 shadow-xl border border-pink-200/80 space-y-8 relative overflow-hidden">
+            
+            <!-- Decorative Accent Elements -->
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-pink-200/50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-goldLight/50 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="text-center space-y-3 relative z-10">
+                <span class="inline-block px-4 py-1 text-xs font-bold tracking-widest text-deepRose uppercase bg-pink-100 rounded-full border border-pink-200">
+                    ✨ To My Dearest Best Friend ✨
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold font-script text-deepRose py-1">
+                    3+ Years of Pure Magic with You, Yassmine
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-600 max-w-xl mx-auto">
+                    The best things I could ever say to you on your special day...
+                </p>
+            </div>
+
+            <!-- HEARTFELT LETTER CARD -->
+            <div class="bg-gradient-to-br from-white/95 to-pink-50/90 p-6 sm:p-10 rounded-3xl border border-pink-200/80 shadow-inner relative space-y-6 text-gray-700 leading-relaxed text-sm sm:text-base">
+                <div class="flex items-center justify-between border-b border-pink-200/60 pb-4">
+                    <span class="font-cursive text-2xl font-bold text-accentPink">Dear Yassmine,</span>
+                    <span class="text-xs font-medium text-gray-400 bg-white/80 px-3 py-1 rounded-full border border-pink-100">3 Years & Forever ♾️</span>
+                </div>
+
+                <p class="first-letter:text-4xl first-letter:font-script first-letter:text-accentPink first-letter:font-bold">
+                    Looking back at these past 3+ years, having you as my friend has been one of the greatest blessings in my life. Through every random late-night chat, endless inside jokes, shared secrets, and unforgettable moments, you’ve proven time and time again what a genuine, loyal, and incredible person you are.
+                </p>
+
+                <p>
+                    You have this rare energy that lights up any room and brings comfort whenever life gets tough. No matter how much time passes or how busy life gets, knowing you're in my corner makes everything brighter. You aren't just a best friend to me—you're family.
+                </p>
+
+                <div class="bg-white/80 p-4 rounded-2xl border-l-4 border-accentPink shadow-sm my-4 italic text-gray-800 text-xs sm:text-sm">
+                    "Thank you for being the one I can laugh with until my stomach hurts, be completely myself around, and count on no matter what."
+                </div>
+
+                <p>
+                    I hope this birthday brings you as much happiness, sweetness, and peace as you bring to everyone lucky enough to know you. Here's to celebrating <strong>YOU</strong> today, and to many, many more years of laughter, success, and incredible memories together!
+                </p>
+
+                <div class="pt-4 border-t border-pink-200/60 flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-500">Happy Birthday to the most extraordinary friend! 🎉</span>
+                    <span class="font-script text-2xl font-bold text-deepRose">With all my love & appreciation 💕</span>
+                </div>
+            </div>
+
+            <!-- 3 PILLARS OF FRIENDSHIP CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <!-- Pillar 1 -->
+                <div class="p-5 rounded-2xl bg-white/90 border border-pink-200 shadow-sm hover:shadow-md transition text-center space-y-2 group">
+                    <div class="w-12 h-12 mx-auto bg-pink-100 rounded-2xl flex items-center justify-center text-accentPink text-xl group-hover:scale-110 transition">
+                        😂
+                    </div>
+                    <h3 class="font-bold text-gray-800 font-cursive text-xl text-deepRose">The Unstoppable Laughs</h3>
+                    <p class="text-xs text-gray-600 leading-normal">
+                        Over 3 years of uncontrollable giggles, ridiculous jokes, and memories that still make me smile out of nowhere!
+                    </p>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="p-5 rounded-2xl bg-white/90 border border-pink-200 shadow-sm hover:shadow-md transition text-center space-y-2 group">
+                    <div class="w-12 h-12 mx-auto bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-xl group-hover:scale-110 transition">
+                        💎
+                    </div>
+                    <h3 class="font-bold text-gray-800 font-cursive text-xl text-deepRose">An Unbreakable Bond</h3>
+                    <p class="text-xs text-gray-600 leading-normal">
+                        Through every high and low, you’ve been a constant rock. Genuine loyalty and kindness like yours is one in a million.
+                    </p>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="p-5 rounded-2xl bg-white/90 border border-pink-200 shadow-sm hover:shadow-md transition text-center space-y-2 group">
+                    <div class="w-12 h-12 mx-auto bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 text-xl group-hover:scale-110 transition">
+                        🌟
+                    </div>
+                    <h3 class="font-bold text-gray-800 font-cursive text-xl text-deepRose">The Bright Future</h3>
+                    <p class="text-xs text-gray-600 leading-normal">
+                        Here's to all the new adventures, dreams to chase, and memories we have yet to create together in the years ahead!
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 text-xs text-gray-500 relative z-10 space-y-1">
+        <p>Made with 💕 especially for Yassmine's Birthday</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* --- STATE MANAGEMENT --- */
+        let cakeState = {
+            tiers: 2,
+            flavorClass: 'bg-pink-200',
+            hasDrips: true,
+            hasBorders: true,
+            topping: 'berries',
+            candlesCount: 3,
+            candlesUnlit: 0
+        };
+
+        /* --- AUDIO SYSTEM --- */
+        let isMusicPlaying = false;
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudioContext();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+            const audio = document.getElementById('main-playlist-audio');
+            const musicIcon = document.getElementById('music-icon');
+            const musicText = document.getElementById('music-text');
+
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+                musicIcon.className = "fa-solid fa-music text-lg";
+                musicText.textContent = "Birthday Song 🎵";
+            } else {
+                audio.play().then(() => {
+                    isMusicPlaying = true;
+                    musicIcon.className = "fa-solid fa-compact-disc text-lg animate-spin";
+                    musicText.textContent = "Playing 🎶";
+                }).catch(err => {
+                    console.log("Audio play error:", err);
+                });
+            }
+        }
+
+        /* --- SOUND EFFECTS --- */
+        function playTone(freq, duration, type = 'sine', gainVal = 0.1) {
+            initAudioContext();
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.error(e); }
+        }
+
+        function playPopSound() {
+            playTone(450 + Math.random() * 200, 0.1, 'triangle', 0.2);
+        }
+
+        function playBlowSound() {
+            playTone(140, 0.3, 'sine', 0.15);
+        }
+
+        /* --- CONFETTI CANNON --- */
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 90,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#FF6B8B', '#FFD1DC', '#D4AF37', '#FFF0F5', '#C71585']
+                });
+            }
+        }
+
+        /* --- RENDER & UPDATE CAKE --- */
+        function updateCake() {
+            playPopSound();
+
+            const t1 = document.getElementById('tier-1');
+            const t2 = document.getElementById('tier-2');
+            const t3 = document.getElementById('tier-3');
+
+            const flavorClasses = ['bg-pink-200', 'bg-amber-100', 'bg-amber-800', 'bg-emerald-200', 'bg-sky-200', 'bg-yellow-200', 'bg-rose-300', 'bg-purple-200'];
+            [t1, t2, t3].forEach(tier => {
+                flavorClasses.forEach(cls => tier.classList.remove(...cls.split(' ')));
+                cakeState.flavorClass.split(' ').forEach(cls => tier.classList.add(cls));
+            });
+
+            t1.classList.remove('hidden');
+            if (cakeState.tiers >= 2) t2.classList.remove('hidden'); else t2.classList.add('hidden');
+            if (cakeState.tiers >= 3) t3.classList.remove('hidden'); else t3.classList.add('hidden');
+
+            [1, 2, 3].forEach(i => {
+                const dripEl = document.getElementById(`drip-${i}`);
+                const borderEl = document.getElementById(`border-${i}`);
+
+                if (cakeState.hasDrips) {
+                    dripEl.classList.remove('hidden');
+                    dripEl.innerHTML = `<div class="drip bg-amber-900/40"></div><div class="drip bg-amber-900/40"></div><div class="drip bg-amber-900/40"></div>`;
+                } else {
+                    dripEl.classList.add('hidden');
+                }
+
+                if (cakeState.hasBorders) {
+                    borderEl.classList.remove('hidden');
+                } else {
+                    borderEl.classList.add('hidden');
+                }
+            });
+
+            const toppersLayer = document.getElementById('toppers-layer');
+            let toppersHTML = '';
+            if (cakeState.topping === 'berries') toppersHTML = '🍓 🍒 🍓';
+            else if (cakeState.topping === 'macarons') toppersHTML = '🧁 🍨 🧁';
+            else if (cakeState.topping === 'blooms') toppersHTML = '🌸 🌹 🌸';
+            toppersLayer.innerHTML = toppersHTML;
+
+            renderCandles();
+        }
+
+        function renderCandles() {
+            const candlesLayer = document.getElementById('candles-layer');
+            candlesLayer.innerHTML = '';
+            cakeState.candlesUnlit = 0;
+
+            for (let i = 0; i < cakeState.candlesCount; i++) {
+                const candleDiv = document.createElement('div');
+                candleDiv.className = "candle flex flex-col items-center cursor-pointer group";
+                candleDiv.onclick = function() { blowOutCandle(this); };
+                candleDiv.innerHTML = `
+                    <div class="flame w-3.5 h-5 bg-gradient-to-t from-yellow-500 via-orange-400 to-yellow-200 rounded-full animate-flame shadow-[0_0_10px_#f59e0b]"></div>
+                    <div class="w-2 h-10 bg-gradient-to-r from-pink-300 via-white to-pink-300 rounded-t-sm shadow-inner mt-0.5"></div>
+                `;
+                candlesLayer.appendChild(candleDiv);
+            }
+
+            document.getElementById('wish-result').classList.add('hidden');
+        }
+
+        /* --- CONTROL HANDLERS --- */
+        function setTiers(num) {
+            cakeState.tiers = num;
+            document.querySelectorAll('.tier-btn').forEach((btn, idx) => {
+                if (idx + 1 === num) {
+                    btn.className = "tier-btn py-2 text-xs font-semibold rounded-xl border border-pink-300 bg-accentPink text-white shadow";
+                } else {
+                    btn.className = "tier-btn py-2 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50 text-gray-700";
+                }
+            });
+            updateCake();
+        }
+
+        function setFlavor(cls, name) {
+            cakeState.flavorClass = cls;
+            updateCake();
+        }
+
+        function toggleDrips() {
+            cakeState.hasDrips = !cakeState.hasDrips;
+            document.getElementById('btn-drip').classList.toggle('bg-pink-100');
+            updateCake();
+        }
+
+        function toggleBorders() {
+            cakeState.hasBorders = !cakeState.hasBorders;
+            document.getElementById('btn-border').classList.toggle('bg-pink-100');
+            updateCake();
+        }
+
+        function setTopping(topping) {
+            cakeState.topping = topping;
+            updateCake();
+        }
+
+        function setCandles(count) {
+            cakeState.candlesCount = count;
+            document.querySelectorAll('.candle-count-btn').forEach((btn) => {
+                if (btn.textContent.includes(count)) {
+                    btn.className = "candle-count-btn flex-1 py-1.5 text-xs font-semibold rounded-xl border border-pink-300 bg-accentPink text-white";
+                } else {
+                    btn.className = "candle-count-btn flex-1 py-1.5 text-xs font-semibold rounded-xl border border-pink-300 bg-white hover:bg-pink-50";
+                }
+            });
+            updateCake();
+        }
+
+        function updateBannerText(text) {
+            document.getElementById('cake-banner').textContent = text || 'Happy Birthday Yassmine';
+        }
+
+        /* --- 30 BEFORE 30 BUCKET LIST --- */
+        let bucketList = [
+            { id: 1, category: "✈️ Epic Trips", text: "Spontaneous late-night road trip with zero plan", done: false },
+            { id: 2, category: "✈️ Epic Trips", text: "Book an international bestie getaway trip together", done: false },
+            { id: 3, category: "✈️ Epic Trips", text: "Stay at a luxury seaside spa resort for a weekend", done: false },
+            { id: 4, category: "✈️ Epic Trips", text: "Camping or glamping under the stars with a bonfire", done: false },
+            { id: 5, category: "✈️ Epic Trips", text: "Take a sunset cruise or boat party excursion", done: false },
+            { id: 6, category: "🤪 Chaos & Fun", text: "Host an aesthetic baking night that ends in total chaos", done: false },
+            { id: 7, category: "🤪 Chaos & Fun", text: "Get matching tiny tattoos or dainty permanent jewelry", done: false },
+            { id: 8, category: "🤪 Chaos & Fun", text: "Go to an emergency dance party in full fancy dresses", done: false },
+            { id: 9, category: "🤪 Chaos & Fun", text: "Try a high-adrenaline activity (skydiving, ziplining, or rollercoasters)", done: false },
+            { id: 10, category: "🤪 Chaos & Fun", text: "Crash a random workout class or dance workshop together", done: false },
+            { id: 11, category: "🤪 Chaos & Fun", text: "Go karaoke singing and duet our favorite 2000s song", done: false },
+            { id: 12, category: "💖 Core Memories", text: "Attend a live concert or music festival of our favorite artist", done: false },
+            { id: 13, category: "💖 Core Memories", text: "Have a professional photo shoot dressed up like queens", done: false },
+            { id: 14, category: "💖 Core Memories", text: "Learn a new language or skill together", done: false },
+            { id: 15, category: "💖 Core Memories", text: "Create a bestie time capsule to open on our 40th birthdays", done: false },
+            { id: 16, category: "💖 Core Memories", text: "Host a full-blown fancy tea party or gourmet dinner night", done: false },
+            { id: 17, category: "💖 Core Memories", text: "Watch a live sunset and sunrise back-to-back on the same day", done: false },
+            { id: 18, category: "💖 Core Memories", text: "Take an pottery or sip-and-paint class together", done: false },
+            { id: 19, category: "💖 Core Memories", text: "Go to a amusement park and win a giant stuffed plushie", done: false },
+            { id: 20, category: "🛋️ Chill & Cozy", text: "All-night movie marathon with 10/10 snacks & facemasks", done: false },
+            { id: 21, category: "🛋️ Chill & Cozy", text: "Binge-watch an entire TV series in one weekend", done: false },
+            { id: 22, category: "🛋️ Chill & Cozy", text: "Go cafe hopping and find the ultimate favorite iced coffee spot", done: false },
+            { id: 23, category: "🛋️ Chill & Cozy", text: "Have an aesthetic picnic in a flower park with a charcuterie board", done: false },
+            { id: 24, category: "🛋️ Chill & Cozy", text: "Do a 1,000-piece puzzle together without losing our minds", done: false },
+            { id: 25, category: "🛋️ Chill & Cozy", text: "Go thrift shopping and style outrageous outfits for each other", done: false },
+            { id: 26, category: "🛋️ Chill & Cozy", text: "Have a cozy rainy day reading & hot chocolate date", done: false },
+            { id: 27, category: "🛋️ Chill & Cozy", text: "Cook a complex 3-course dinner from scratch from Pinterest", done: false },
+            { id: 28, category: "🛋️ Chill & Cozy", text: "Go to a farmers market on a Sunday morning", done: false },
+            { id: 29, category: "🛋️ Chill & Cozy", text: "Write heartfelt letters to each other to open in 5 years", done: false },
+            { id: 30, category: "🛋️ Chill & Cozy", text: "Celebrate our 5+ year friendship milestone in grand style!", done: false }
+        ];
+
+        function renderBucketList() {
+            const grid = document.getElementById('bucket-list-grid');
+            grid.innerHTML = '';
+
+            let doneCount = 0;
+
+            bucketList.forEach((item, index) => {
+                if (item.done) doneCount++;
+
+                const itemCard = document.createElement('div');
+                itemCard.className = `p-3.5 rounded-2xl border transition duration-200 flex items-start gap-3 cursor-pointer ${
+                    item.done 
+                    ? 'bg-pink-100/80 border-pink-300 shadow-inner opacity-90' 
+                    : 'bg-white/90 border-pink-200 shadow-sm hover:shadow-md hover:border-pink-300'
+                }`;
+                itemCard.onclick = () => toggleBucketItem(index);
+
+                itemCard.innerHTML = `
+                    <div class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-lg border-2 ${
+                        item.done ? 'bg-accentPink border-accentPink text-white' : 'border-pink-300 bg-white'
+                    } flex items-center justify-center transition">
+                        ${item.done ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                    </div>
+                    <div class="flex-1 text-xs sm:text-sm">
+                        <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${
+                            item.done ? 'bg-pink-200 text-deepRose' : 'bg-pink-50 text-gray-500'
+                        }">${item.category}</span>
+                        <p class="${item.done ? 'line-through text-gray-500 font-medium' : 'text-gray-800 font-medium'}">
+                            ${item.text}
+                        </p>
+                    </div>
+                `;
+
+                grid.appendChild(itemCard);
+            });
+
+            const total = bucketList.length;
+            const percent = Math.round((doneCount / total) * 100);
+            document.getElementById('bucket-progress-text').textContent = `${doneCount} of ${total} Done (${percent}%)`;
+            document.getElementById('bucket-progress-bar').style.width = `${percent}%`;
+        }
+
+        function toggleBucketItem(index) {
+            bucketList[index].done = !bucketList[index].done;
+            playPopSound();
+            if (bucketList[index].done) {
+                triggerConfetti();
+            }
+            renderBucketList();
+        }
+
+        function addCustomBucketItem() {
+            const input = document.getElementById('custom-bucket-input');
+            const val = input.value.trim();
+            if (val) {
+                bucketList.push({
+                    id: Date.now(),
+                    category: "✨ Custom Goal",
+                    text: val,
+                    done: false
+                });
+                input.value = '';
+                playPopSound();
+                renderBucketList();
+            }
+        }
+
+        /* --- CANDLE BLOWING --- */
+        function blowOutCandle(element) {
+            const flame = element.querySelector('.flame');
+            if (flame && flame.style.display !== 'none') {
+                playBlowSound();
+                flame.style.display = 'none';
+
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke-particle w-2 h-2 bg-gray-400 rounded-full absolute -top-2';
+                element.appendChild(smoke);
+
+                cakeState.candlesUnlit++;
+                if (cakeState.candlesUnlit >= cakeState.candlesCount) {
+                    triggerConfetti();
+                    document.getElementById('wish-result').classList.remove('hidden');
+                }
+            }
+        }
+
+        function blowOutAllCandles() {
+            const candles = document.querySelectorAll('.candle');
+            candles.forEach(c => blowOutCandle(c));
+        }
+
+        /* --- FLOATING BALLOONS --- */
+        function createBalloons() {
+            const container = document.getElementById('balloon-container');
+            const colors = ['#FFD1DC', '#FF6B8B', '#D4AF37', '#FFF0F5', '#E6E6FA'];
+
+            for (let i = 0; i < 12; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon animate-float pointer-events-auto';
+
+                const size = 45 + Math.random() * 35;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const leftPercent = Math.random() * 95;
+                const duration = 6 + Math.random() * 6;
+                const delay = Math.random() * 5;
+
+                balloon.style.width = `${size}px`;
+                balloon.style.height = `${size * 1.25}px`;
+                balloon.style.backgroundColor = color;
+                balloon.style.left = `${leftPercent}%`;
+                balloon.style.animationDuration = `${duration}s`;
+                balloon.style.animationDelay = `${delay}s`;
+
+                balloon.addEventListener('click', function () {
+                    playPopSound();
+                    this.style.transition = 'transform 0.1s ease, opacity 0.1s ease';
+                    this.style.transform = 'scale(1.4)';
+                    this.style.opacity = '0';
+                    setTimeout(() => this.remove(), 120);
+                });
+
+                container.appendChild(balloon);
+            }
+        }
+
+        window.onload = function () {
+            createBalloons();
+            updateCake();
+            renderBucketList();
+            setTimeout(triggerConfetti, 500);
+        };
+    </script>
+</body>
+</html>
